@@ -6,7 +6,7 @@ const DOCUMENT_NAME = 'Key';
 const COLLECTION_NAME = 'Keys';
 
 var keyTokenSchema = new Schema({
-    user: {
+    userId: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: 'Shop'

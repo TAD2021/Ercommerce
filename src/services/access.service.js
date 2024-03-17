@@ -17,6 +17,10 @@ const RoleShop = {
 }
 
 class AccessService {
+    static logout = async (keyStore) => {
+        return delKey = await KeyTokenService.removeKeyById(keyStore._id)
+    }
+
     static login = async ({email, password, refreshToKen = null}) => {
         const foundShop = await findByEmail({email})
         if(!foundShop) throw new BadRequestError('Shop not registered')
