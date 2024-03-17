@@ -1,7 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const connectString = 'mongodb+srv://admin:10102001@cluster0.ycjok.mongodb.net/ercommerce'
+const connectString = process.env.MONGO_URL
 const {countConnect} = require('../helpers/check.connect')
 // Singleton pattern
 class Database {

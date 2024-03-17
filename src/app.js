@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-    const statusCode = error.status || 500
+    const statusCode = err.status || 500
     return res.status(statusCode).json({
         status: 'error',
         code: statusCode,
