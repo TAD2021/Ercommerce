@@ -1,8 +1,8 @@
 const ReasonPhrases = {
-    FORBIDDEN: 'Bad request error',
-    CONFLICT: 'Conflict error',
     UNAUTHORIZED: 'Unauthorized error',
+    FORBIDDEN: 'Bad request error',
     NOT_FOUND: 'Not found error',
+    CONFLICT: 'Conflict error',
 }
 
 const StatusCode = {
