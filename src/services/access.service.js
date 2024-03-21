@@ -24,18 +24,15 @@ class AccessService {
             await KeyTokenService.deleteKeyById(userId)
             throw new ForbiddenError('Something wrong happended!! Pls relogin again')
         }
-
-        const holderToken = await KeyTokenService.findByRefreshToken({refreshToken})
+        const holderToken = await KeyTokenService.findByRefreshToken(refreshToken)
         if(!holderToken) throw new AuthFailureError('Shop not registered')
 
         const {userId, email} = await verifyJWT(refreshToken, holderToken.privateKey)
-        
-        const foundShop = await findByEmail(email)
+        const foundShop = await findByEmail({email})
         if(!foundShop) throw new AuthFailureError('Shop not registered')
 
         const tokens = await createTokenPair({userId, email}, holderToken.publicKey, holderToken.privateKey)
-
-        await holderToken.updated({
+        await holderToken.update({
             $set: {
                 refreshToken: tokens.refreshToken
             },
@@ -51,10 +48,11 @@ class AccessService {
     }
 
     static logout = async (keyStore) => {
-        return delKey = await KeyTokenService.removeKeyById(keyStore._id)
+        const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+        return delKey
     }
 
-    static login = async ({email, password, refreshToKen = null}) => {
+    static login = async ({email, password, refreshToken = null}) => {
         const foundShop = await findByEmail({email})
         if(!foundShop) throw new BadRequestError('Shop not registered')
 
@@ -65,9 +63,10 @@ class AccessService {
         const publicKey = crypto.randomBytes(64).toString('hex')
     
         const tokens = await createTokenPair({userId: foundShop._id, email}, publicKey, privateKey)
-    
+        console.log(tokens.refreshToken)
         await KeyTokenService.createKeyToken({
-            refreshToKen: tokens.refreshToKen,
+            userId: foundShop._id,
+            refreshToken: tokens.refreshToken,
             privateKey,
             publicKey
         })

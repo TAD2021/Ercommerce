@@ -5,9 +5,9 @@ const { apiKey, permisson } = require('../auth/checkAuth');
 const router = express.Router();
 
 //check apiKey
-//router.use(apiKey)
+router.use(apiKey)
 //check permission
-//router.use(permisson('0000'))
+router.use(permisson('0000'))
 
 router.use('/v1/api', require('./access/index'))
 
