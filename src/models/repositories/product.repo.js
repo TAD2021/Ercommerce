@@ -79,7 +79,7 @@ const updateProductById = async({
  
 const queryProduct = async({query, limit, skip}) => {
     return await product.find(query).
-        populate('product_shop', 'name emamil -_id')
+        populate('product_shop', 'name email -_id')
             .sort({updateAt: -1})
             .skip(skip)
             .limit(limit)

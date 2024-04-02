@@ -2,7 +2,7 @@
 
 const { BadRequestError, NotFoundError } = require("../core/error.response");
 const { discount } = require("../models/discount.model");
-const { findAllDiscountCodeUnSelect } = require("../models/repositories/discount.repo");
+const { findAllDiscountCodeUnSelect, checkDiscountExists } = require("../models/repositories/discount.repo");
 const { findAllProducts } = require("../models/repositories/product.repo");
 const { convertToObjectId } = require("../utils");
 
@@ -57,6 +57,8 @@ class DiscountService {
             discount_applies_to: applies_to,
             discount_product_ids: applies_to === 'all' ? [] : product_ids
         })
+
+        console.log('444')
 
         return newDiscount
     }
@@ -124,4 +126,63 @@ class DiscountService {
 
         return discounts
     }
+
+    static async getDiscountAmout({codeId, userId, shopId, products}){
+        const foundDiscount = await checkDiscountExists({
+            model: discount,
+            filter: {
+                discount_code: codeId,
+                discount_shopId: convertToObjectId(shopId)
+            }
+        })
+
+        if(!foundDiscount)  throw new NotFoundError(`Discount doesn't exist`)
+    
+        const {
+            discount_is_active,
+            discount_max_uses,
+            discount_end_date,
+            discount_start_date,
+            discount_min_order_value,
+            discount_max_uses_per_user,
+            discount_users_used,
+            discount_type,
+            discount_value
+        } = foundDiscount
+
+        if(!discount_is_active) throw new NotFoundError(`Discount expired`)
+        if(!discount_max_uses) throw new NotFoundError(`Discount are out`)
+    
+        if(new Date() < new Date(discount_start_date) || new Date() > new Date(discount_end_date)){
+            throw new NotFoundError(`Discount encode has expried`)
+        }
+
+        let totalOrder = 0
+        if(discount_min_order_value > 0){
+            totalOrder = products.reduce((acc, product) => {
+                return acc + (product.quantity * product.price)
+            }, 0)
+
+            if(totalOrder < discount_min_order_value){
+                throw new NotFoundError(`Discount requires a minimum order value if ${discount_min_order_value}`)
+            }
+        }
+
+        if(discount_max_uses_per_user > 0){
+            const userDiscount = discount_users_used.find(user => user.userId === userId)
+            if(userDiscount) {}
+        }
+
+        const amout = discount_type === 'fixed_amount' ? discount_value : totalOrder * (discount_value / 100)
+
+        return {
+            totalOrder,
+            discount: amout,
+            totalPrice: totalOrder - amout
+        }
+    }
+
+    static async cancelDiscountCode({codeId, shopId, userId}){}
 }
+
+module.exports = DiscountService
