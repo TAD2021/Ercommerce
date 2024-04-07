@@ -7,7 +7,7 @@ class CheckoutController {
     checkoutReview = async (req, res, next) => {
         new SuccessResponse({
             message: 'Create a new Cart',
-            metadata: await CheckoutService.checkoutService(req.body)
+            metadata: await CheckoutService.checkoutReview(req.body)
         }).send(res)
     }
 }
